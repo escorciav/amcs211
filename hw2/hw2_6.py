@@ -1,6 +1,11 @@
+import logging
+
 import numpy as np
 
 import lin_prog as lp
+
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s',
+                    level=logging.DEBUG)
 
 # 6.1
 A = np.array([[  -1,  -6,   1,   3],
@@ -26,9 +31,9 @@ x = np.array([[ 1],
               [ 1],
              ])
 
-print "Ax = b1 <= b\nb1 =\n", np.dot(A, x), "\nb =\n", b
 J = lp.active_constraints(A, b, x)
 z = lp.get_dual_vars(A, c, J)
+print "b - Ax =\n", b - np.dot(A, x)
 print "Dual variables:\n", z
 
 # 6.2
@@ -57,4 +62,4 @@ x_1 = np.array([[ 2],
                 [ 0],
                ])
 
-x_s = lp.simplex(A, b, c, x_i=x_1, deg_alg='bland', verbose=True)
+x_s = lp.simplex(A, b, c, x_i=x_1, p_rule='bland')
