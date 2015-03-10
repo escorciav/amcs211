@@ -62,4 +62,4 @@ x_1 = np.array([[ 2],
                 [ 0],
                ])
 
-x_s = lp.simplex(A, b, c, x_i=x_1, p_rule='bland')
+x_s = lp.simplex(A, b, c, x_i=x_1, p_rule='bland', verbose=True)

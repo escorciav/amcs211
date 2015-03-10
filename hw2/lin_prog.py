@@ -89,7 +89,7 @@ def pivoting_remove(z, rule):
         raise('Undefined pivoting rule')
     return k
 
-def simplex(A, b, c, x_i=None, p_rule=None):
+def simplex(A, b, c, x_i=None, p_rule=None, verbose=False):
     """Solve a linear program by simplex
     """
     if x_i is None:
@@ -107,9 +107,10 @@ def simplex(A, b, c, x_i=None, p_rule=None):
     while True:
         logger.info('Iteration: {0}, f(x): {1}'.format(it, fx))
         z = get_dual_vars(A, c, J)
-        logger.info('x =\n' + np.array_str(x))
         logger.info('J =\n' + np.array_str(J))
-        logger.info('z =\n' + np.array_str(z))
+        if verbose:
+            logger.info('x =\n' + np.array_str(x))
+            logger.info('z =\n' + np.array_str(z))
 
         if (z[J]>0).sum() == n:
             logger.info('An optimum value was found')
@@ -132,9 +133,10 @@ def simplex(A, b, c, x_i=None, p_rule=None):
             fx = np.dot(c.T, x)
             it += 1
 
-            logger.info('delta_x=\n' + np.array_str(d_x))
-            logger.info('b - Ax=\n' + np.array_str(b_Ax))
-            logger.info('Ad_x=\n' + np.array_str(Ad_x))
+            if verbose:
+                logger.info('delta_x=\n' + np.array_str(d_x))
+                logger.info('b - Ax=\n' + np.array_str(b_Ax))
+                logger.info('Ad_x=\n' + np.array_str(Ad_x))
             logger.info('alpha: {0}'.format(ratio[j]))
             logger.info('k: {0}, j: {1}'.format(k, j))
 
