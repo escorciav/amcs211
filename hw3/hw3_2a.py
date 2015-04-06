@@ -10,14 +10,16 @@ H = sympy.hessian(f, (x1, x2))
 xs = sympy.solve([df_dx1, df_dx2], [x1, x2])
 
 H_xs = H.subs([(x1,xs[0][0]), (x2,xs[0][1])])
+lambda_xs = H_xs.eigenvals()
 
-flag = True
-for i in H_xs.eigenvals().keys():
+count = 0
+for i in lambda_xs.keys():
     if i.evalf() <= 0:
-        flag = False
-        break
+        count += 1
 
-if flag:
-    print 'Stationary point'
+if count == 0:
+    print 'Local minima'
+elif count == len(lambda_xs.keys()):
+    print 'Lacal maxima'
 else:
     print 'Saddle point'
