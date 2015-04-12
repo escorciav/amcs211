@@ -6,6 +6,7 @@ sol = struct('l1', [0, 0], 'l2', [0, 0], 'linf', [0, 0]);
 [y_l2, sol.l2] = l2_fitting(t, y);
 [y_linf, sol.linf] = linf_fitting(t, y);
 plot_regression(t, y, [y_l1, y_l2, y_linf]);
+plot_function(t, y, [sol.l1 sol.l2 sol.linf]');
 end
 
 function [y, x] = l2_fitting(A, b)
@@ -42,6 +43,20 @@ bt = [b; -b];
 x_lin = linprog(c, At, bt);
 x = x_lin(1:2);
 y = A*x;
+end
+
+function plot_function(t, y, X)
+reg = {'data', 'l1', 'l2', 'linf'};
+colors = 'rby';
+figure;
+plot(t, y, 'k.');
+hold on;
+T = [min(t) 1;max(t) 1];
+for i = 1:size(X, 1)
+  u = T * X(i, :)';
+  line(T(:, 1), u, 'Color', colors(i))
+end
+legend(reg(1:size(X, 1)+1));
 end
 
 function plot_regression(t, y, y_est)
