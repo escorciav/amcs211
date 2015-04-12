@@ -46,8 +46,8 @@ y = A*x;
 end
 
 function plot_function(t, y, X)
-reg = {'data', 'l1', 'l2', 'linf'};
-colors = 'rby';
+reg = {'data', 'l_1', 'l_2', 'l_\infty'};
+colors = 'bgr';
 figure;
 plot(t, y, 'k.');
 hold on;
@@ -57,12 +57,16 @@ for i = 1:size(X, 1)
   line(T(:, 1), u, 'Color', colors(i))
 end
 legend(reg(1:size(X, 1)+1));
+xlabel('t')
+title('Plot of linear functions obtained with different norms on residuals')
 end
 
 function plot_regression(t, y, y_est)
-reg = {'data', 'l1', 'l2', 'linf'};
+reg = {'data', 'l_1', 'l_2', 'l_\infty'};
 plot(t, y, 'k.');
 hold on;
-plot(t, y_est, 'o');
+plot(t, y_est, 's');
 legend(reg(1:size(y_est, 2)+1));
+xlabel('t')
+title('Plot of Regressions using different norms on residuals')
 end
