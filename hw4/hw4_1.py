@@ -14,9 +14,12 @@ def hw4_1():
     x0 = (1.2, 1.2)T and then the more difficult starting point x0 = (1.2, 1)T
     """
     alpha_max , rho, c = 1, 0.5, 0.5
+    delta_max, eta = 2, 1.0/8
     f = (rb_function, rb_gradient, rb_hessian)
 
     x_0 = array([[1.2], [1.2]])
+    x_p, f_obj, delta, iter =  trust_region_min(f, x_0, delta_max, eta)
+    #plot_results(x_p, f_obj, alpha, iter, 'steepest descent', x_0)
     x_p, f_obj, alpha, iter =  backtracking_min(f, x_0, 'steepest descent',
                                                 alpha_max, rho, c)
     #plot_results(x_p, f_obj, alpha, iter, 'steepest descent', x_0)
@@ -47,6 +50,7 @@ def backtracking_min(f, x_0, method, alpha_max=1, rho=0.5, c=0.5, iter=0,
         p = step_dir(f, x, method)
         alpha[iter], f_obj[iter] = step_length(f, x, p, alpha[iter], rho, c)
         x += alpha[iter] * p
+
     f_obj, alpha = f_obj[0:iter], alpha[0:iter]
     return x, f_obj, alpha, iter
 
@@ -89,6 +93,47 @@ def step_length(f, x_k, p_k, alpha_max=1, rho=0.5, c=0.5):
            f_x_k + c * alpha * dot(f[1](x_k).T, p_k)):
         alpha = rho * alpha
     return alpha, f_x_k
+
+def trust_region_min(f, x_0, method, delta_max=1, eta=1.0/8, iter=0,
+                     tol=1e-4, max_iter=1e6):
+    # Minimize f with trust region algorithm
+    f_obj = zeros((max_iter, 1))
+    delta = delta_max * ones((max_iter, 1))
+
+    x, f_obj[iter] = x_0.copy(), f[0](x_0)
+    while norm(f[1](x)) > tol and iter < max_iter:
+        iter += 1
+        p = cauchy_point(f, x, delta[iter])
+        approx_at_p = (f_obj[iter - 1] + dot(f[1](x).T, p) +
+                       0.5*dot(p.T, dot(f[2](x), p)))
+        rho = (f_obj[iter - 1] - f[0](x + p)) / (f_obj[iter - 1] - approx_at_p)
+        if rho < 0.25:
+            delta[iter] = 0.25*delta[iter - 1]
+        else:
+            if rho > 0.75 and norm(p) == delta[iter - 1]:
+                delta[iter] = min(2*delta[iter - 1], delta_max)
+            else:
+                delta[iter] = delta[iter - 1]
+        if rho > eta:
+            x += p
+            f_obj[iter] = f[0](x)
+        else:
+            f_obj[iter] = f_obj[iter - 1]
+
+    f_obj, delta = f_obj[0:iter], delta[0:iter]
+    return x, f_obj, delta, iter
+
+def cauchy_point(f, x_k, delta):
+    # Compute step direction for trust-region optimization
+    g_k, B_k = f[1](x_k), f[2](x_k)
+    p_s = -delta*g_k/norm(g_k)
+    D = dot(g_k.T, dot(B_k, g_k))
+    if D <= 0:
+        tao = 1
+    else:
+        tao = min(1, norm(g_k)**3 / delta / D)
+    p_c = tao*p_s
+    return p_c
 
 # Visualize iteration
 def plot_results(x_p, f_obj, alpha, iter, method, x_0):
