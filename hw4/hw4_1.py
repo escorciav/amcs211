@@ -24,6 +24,11 @@ def hw4_1():
                                                 rho, c)
     #plot_results(x_p, f_obj, alpha, iter, 'newton', x_0)
     f = (rb_function, rb_gradient,
+         [[], False])
+    x_p, f_obj, alpha, iter =  backtracking_min(f, x_0, 'cg-fr',
+                                                alpha_max, rho, c)
+    #plot_results(x_p, f_obj, alpha, iter, 'newton', x_0)
+    f = (rb_function, rb_gradient,
          [rb_hessian(x_0), x_0.copy(), [], False])
     x_p, f_obj, alpha, iter =  backtracking_min(f, x_0, 'quasi-newton',
                                                 alpha_max, rho, c)
@@ -62,6 +67,15 @@ def step_dir(f, x_k, method):
             f[2][0] = dot(A, dot(f[2][0], B)) + rho*dot(s, s.T)
             f[2][1], f[2][2] = x_k.copy(), g_x_k
         p = - dot(f[2][0], f[2][2])
+    elif method == 'cg-fr' or method == 'cg':
+        if not f[2][1]:
+            f[2][0], f[2][1] = -f[1](x_k), True
+            p = f[2][0].copy()
+        else:
+            g_x_k, g_x_k_1 = f[1](x_k), f[2][0]
+            beta = norm(g_x_k) / norm(g_x_k_1)
+            f[2][0] = -g_x_k + beta*g_x_k_1
+            p = f[2][0].copy()
     else:
         p = - f[1](x_k)
     p = p / norm(p)
