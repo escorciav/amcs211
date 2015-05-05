@@ -163,13 +163,14 @@ def cauchy_point(f, x_k, delta):
 # Visualize iteration
 def plot_results(filename, x_p, f_obj, alpha, iter, x_0, legend, tol=1e-4):
     marker = 'ovsx><'
+    color = 'bgrcm'
     for i in range(len(legend)):
-        plt.semilogx(range(iter[i]), f_obj[i], lw=2.5, marker=marker[i],
-                     fillstyle='full', ms=8.0)
-    plt.title('Minimizing Rosenbrok with tol %.0e and x_0' % tol + x_0)
-    plt.xlabel('Num Iters')
-    plt.ylabel('Objective function')
-    plt.legend(legend)
+        plt.loglog(range(iter[i]), f_obj[i], lw=2.5, marker=marker[i],
+                     fillstyle='full', ms=8.0, color=color[i])
+    plt.title('Minimizing Rosenbrock Function, tol %.0e and x_0 ' % tol + x_0, fontsize=12)
+    plt.xlabel('Num Iters', fontsize=12)
+    plt.ylabel('Objective function', fontsize=12)
+    plt.legend(legend, fontsize=10)
     plt.savefig(filename)
     plt.close()
 
