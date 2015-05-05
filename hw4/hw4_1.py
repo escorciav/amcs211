@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from numpy import array, dot, eye, ones, zeros
 from numpy.linalg import inv, norm
 
@@ -15,26 +16,50 @@ def hw4_1():
     """
     alpha_max , rho, c = 1, 0.5, 0.5
     delta_max, eta = 2, 1.0/8
+    x_p, f_obj, alpha, iter = [[]] * 5, [[]] * 5, [[]] * 5, [[]] * 5
+    leg = ['Trust Region (Cauchy Point)', 'Steepest Descent',
+           'Newton', 'Conjugate Gradient', 'Quasi-Newton']
     f = (rb_function, rb_gradient, rb_hessian)
 
-    x_0 = array([[1.2], [1.2]])
-    x_p, f_obj, delta, iter =  trust_region_min(f, x_0, delta_max, eta)
-    #plot_results(x_p, f_obj, alpha, iter, 'steepest descent', x_0)
-    x_p, f_obj, alpha, iter =  backtracking_min(f, x_0, 'steepest descent',
-                                                alpha_max, rho, c)
-    #plot_results(x_p, f_obj, alpha, iter, 'steepest descent', x_0)
-    x_p, f_obj, alpha, iter =  backtracking_min(f, x_0, 'newton', alpha_max,
-                                                rho, c)
-    #plot_results(x_p, f_obj, alpha, iter, 'newton', x_0)
-    f = (rb_function, rb_gradient,
-         [[], False])
-    x_p, f_obj, alpha, iter =  backtracking_min(f, x_0, 'cg-fr',
-                                                alpha_max, rho, c)
-    #plot_results(x_p, f_obj, alpha, iter, 'newton', x_0)
-    f = (rb_function, rb_gradient,
-         [rb_hessian(x_0), x_0.copy(), [], False])
-    x_p, f_obj, alpha, iter =  backtracking_min(f, x_0, 'quasi-newton',
-                                                alpha_max, rho, c)
+    x_0, i = array([[1.2], [1.2]]), 0
+    x_p[i], f_obj[i], alpha[i], iter[i] = trust_region_min(f, x_0, delta_max,
+        eta)
+    i += 1
+    x_p[i], f_obj[i], alpha[i], iter[i] = backtracking_min(f, x_0,
+        'steepest descent', alpha_max, rho, c)
+    i += 1
+    x_p[i], f_obj[i], alpha[i], iter[i] = backtracking_min(f, x_0,
+        'newton', alpha_max, rho, c)
+    i += 1
+    f = (rb_function, rb_gradient, [[], False])
+    x_p[i], f_obj[i], alpha[i], iter[i] =  backtracking_min(f, x_0, 'cg-fr',
+        alpha_max, rho, c)
+    i += 1
+    f = (rb_function, rb_gradient, [rb_hessian(x_0), x_0.copy(), [], False])
+    x_p[i], f_obj[i], alpha[i], iter[i] =  backtracking_min(f, x_0,
+        'quasi-newton', alpha_max, rho, c)
+    plot_results('out1.pdf', x_p, f_obj, alpha, iter, '[1.2, 1.2].T', leg)
+
+
+    x_0, i = array([[1.2], [1.0]]), 0
+    f = (rb_function, rb_gradient, rb_hessian)
+    x_p[i], f_obj[i], alpha[i], iter[i] = trust_region_min(f, x_0, delta_max,
+        eta)
+    i += 1
+    x_p[i], f_obj[i], alpha[i], iter[i] = backtracking_min(f, x_0,
+        'steepest descent', alpha_max, rho, c)
+    i += 1
+    x_p[i], f_obj[i], alpha[i], iter[i] = backtracking_min(f, x_0,
+        'newton', alpha_max, rho, c)
+    i += 1
+    f = (rb_function, rb_gradient, [[], False])
+    x_p[i], f_obj[i], alpha[i], iter[i] =  backtracking_min(f, x_0, 'cg-fr',
+        alpha_max, rho, c)
+    i += 1
+    f = (rb_function, rb_gradient, [rb_hessian(x_0), x_0.copy(), [], False])
+    x_p[i], f_obj[i], alpha[i], iter[i] =  backtracking_min(f, x_0,
+        'quasi-newton', alpha_max, rho, c)
+    plot_results('out2.pdf', x_p, f_obj, alpha, iter, '[1.2, 1.0].T', leg)
     return None
 
 def backtracking_min(f, x_0, method, alpha_max=1, rho=0.5, c=0.5, iter=0,
@@ -136,20 +161,17 @@ def cauchy_point(f, x_k, delta):
     return p_c
 
 # Visualize iteration
-def plot_results(x_p, f_obj, alpha, iter, method, x_0):
-    return None
-"""
-subplot(1, 2, 1);
-plot(1:iter, f_obj);
-title(['Min Rosenbrock funct with ', method])
-ylabel('f(x)');
-xlabel('Iters');
-subplot(1, 2, 2);
-plot(1:iter, alpha)
-title(['x_0 = ', mat2str(x_0', 3), ', x^* = ', mat2str(x_p', 3)]);
-ylabel('alpha');
-xlabel('Iters');
-"""
+def plot_results(filename, x_p, f_obj, alpha, iter, x_0, legend, tol=1e-4):
+    marker = 'ovsx><'
+    for i in range(len(legend)):
+        plt.semilogx(range(iter[i]), f_obj[i], lw=2.5, marker=marker[i],
+                     fillstyle='full', ms=8.0)
+    plt.title('Minimizing Rosenbrok with tol %.0e and x_0' % tol + x_0)
+    plt.xlabel('Num Iters')
+    plt.ylabel('Objective function')
+    plt.legend(legend)
+    plt.savefig(filename)
+    plt.close()
 
 # Function to minimize, its gradient and hessian
 
